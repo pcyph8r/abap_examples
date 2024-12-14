@@ -1,0 +1,51 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+
+@EndUserText.label: 'Filter Conditions at field level'
+
+@Metadata.ignorePropagatedAnnotations: true
+
+@ObjectModel.usageType:{
+
+   serviceQuality: #X,
+
+   sizeCategory: #S,
+
+   dataClass: #MIXED
+
+}
+
+define view entity ZPK_SAMPLE07  as select from ZPK_SAMPLE05
+
+{
+
+   key SalesOrder as SalesOrder,
+
+   Customer as Customer,
+
+   name1 as CustomerName,
+
+   posnr as LineItem,
+
+   matnr as Material,         
+
+   _matdesc[spras = 'E'].maktx as MaterialDescription,
+
+   /* Associations */
+
+   _docflow[ posnv = $projection.lineitem
+
+            and vbtyp_n = 'M'].vbeln as Invoice,
+
+   _docflow[posnv = $projection.lineitem
+
+            and vbtyp_n = 'M'].posnn as InvoiceLineItem
+
+   
+
+}
+
+where
+
+   SalesOrder = '0000000713'
