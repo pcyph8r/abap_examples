@@ -1,0 +1,43 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+
+@EndUserText.label: 'Cardinality LFOJ & CurrencyRef'
+
+@Metadata.ignorePropagatedAnnotations: true
+
+@ObjectModel.usageType:{
+
+   serviceQuality: #X,
+
+   sizeCategory: #S,
+
+   dataClass: #MIXED
+
+}
+
+define view entity ZPK_SAMPLE03 as
+
+          select from I_SalesDocument
+
+          association[1..*] to I_SalesDocumentItem as _item
+
+          on I_SalesDocument.SalesDocument = _item.SalesDocument
+
+{
+
+   key SalesDocument as SalesOrder,
+
+          SalesOrganization  as SalesOrg,
+
+       SoldToParty as Buyer,
+
+      TransactionCurrency as Currency,
+
+       @Semantics.amount.currencyCode : 'Currency'
+
+       TotalNetAmount as Amount,
+
+       _item
+
+}
