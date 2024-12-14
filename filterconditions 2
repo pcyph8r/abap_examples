@@ -1,0 +1,49 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+
+@EndUserText.label: 'Filter Condition and Currency Ref'
+
+@Metadata.ignorePropagatedAnnotations: true
+
+@ObjectModel.usageType:{
+
+   serviceQuality: #X,
+
+   sizeCategory: #S,
+
+   dataClass: #MIXED
+
+}
+
+define view entity ZPK_SAMPLE09 as select from I_SalesDocument
+
+association [1..*] to I_SalesDocumentItem as _item
+
+on I_SalesDocument.SalesDocument = _item.SalesDocument
+
+with default filter _item.NetAmount>1000
+
+{
+
+key cast ( I_SalesDocument.SalesDocument as vbeln preserving type ) as field,
+
+//   key vbak.vbeln,
+
+ @EndUserText.quickInfo: ' Customer Information '
+
+  @EndUserText.label: 'Customer' 
+
+   I_SalesDocument.SoldToParty,
+
+   I_SalesDocument.TransactionCurrency as Currency,
+
+   @Semantics.amount.currencyCode: 'Currency'
+
+   I_SalesDocument.TotalNetAmount,
+
+   _item
+
+  
+
+}
