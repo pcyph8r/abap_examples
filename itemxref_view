@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #MANDATORY
 @EndUserText.label: 'Item cross reference.'
