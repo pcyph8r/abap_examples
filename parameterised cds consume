@@ -1,0 +1,67 @@
+*&---------------------------------------------------------------------*
+
+*& Report zpk_consume04
+
+*&---------------------------------------------------------------------*
+
+*&
+
+*&---------------------------------------------------------------------*
+
+REPORT zpk_consume04.
+
+*    tables : kna1,knb1.
+
+*    TYPES : begin of t_hdr,
+
+*                customer type kunnr,
+
+*
+
+*            end of t_hdr.
+
+*
+
+*    data : ls_dr type t_hdr,
+
+*           lt_hdr type  table of t_hdr.
+
+*
+
+*    SELECT-OPTIONS : P_COMP  FOR knb1-bukrs ,
+
+*                     p_CUST for kna1-kunnr.
+
+DATA: lt_flight TYPE STANDARD TABLE OF sflight,
+
+         lrf_descr TYPE REF TO cl_abap_typedescr,
+
+         lv_json   TYPE /ui2/cl_json=>json.
+
+SELECT * FROM ZPK_CUSTOMEREXTRACT( p_ccode = '1710', p_kunnr = '0017411710' )
+
+    INTO TABLE @DATA(it_result).
+
+break-point.
+
+lv_json = /ui2/cl_json=>serialize( data          = it_result
+
+                                      pretty_name   = /ui2/cl_json=>pretty_mode-camel_case
+
+                                      compress      = abap_true
+
+                                     ).
+
+   cl_demo_output=>write_json( lv_json ).
+
+*     if sy-subrc = 0.
+
+*       cl_demo_output=>display( it_result ).
+
+*     endif.
+
+*
+
+*Select * from ZPk_CUSTOMEREXTRACT( P_CCODE in p_comp,P_KUNNR in P_CUST )
+
+*    INTO TABLE @DATA(IT_RESULT).
