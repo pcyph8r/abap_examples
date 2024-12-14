@@ -30,21 +30,36 @@ As more efficent hardware are now availble at lower price,, and softwares are al
 ## This'll be a _Helpful_ Section About the Greek Letter Θ!
 A heading containing characters not allowed in fragments, UTF-8 characters, two consecutive spaces between the first and second words, and formatting.
 
-## This heading is not unique in the file
+## Hardware Innovations 
+#### In Memory Database
+* **Multicore Architecture** -
+  Cores helps in handling tasks parallely by breaking tasks into sub tasks and parts and asssigning to each core.
+* **Address Space** -
+  1 bit stores 2 numbers. 2 bit stores 4 numbers.
+  Bits stores 2^n. 32 bit can handle upto 4 GB of memory. If memory is greater than 4 GBm 32 bit cannot handle. so higher memry ram is requried.
 
-TEXT 1
+  _Price is decreasing and we are getting more performance._
 
-## This heading is not unique in the file
 
-TEXT 2
+## Software Innovations 
+#### Column Store & Row Store
 
-# Links to the example headings above
+  In HANA db,, SAP started using column store along with row store. 
+  
+  | Row Store | Column Store |
+  |-----|---------------|
+  |     Data is stored in db row by row. | Data is stored in db column by column. |
 
-Link to the sample section: [Link Text](#sample-section).
 
-Link to the helpful section: [Link Text](#thisll--be-a-helpful-section-about-the-greek-letter-Θ).
+* **Column Store** -
 
-Link to the first non-unique section: [Link Text](#this-heading-is-not-unique-in-the-file).
+* **Address Space** -
+  1 bit stores 2 numbers. 2 bit stores 4 numbers.
+  Bits stores 2^n. 32 bit can handle upto 4 GB of memory. If memory is greater than 4 GBm 32 bit cannot handle. so higher memry ram is requried.
 
-Link to the second non-unique section: [Link Text](#this-heading-is-not-unique-in-the-file-1).
+  _Price is decreasing and we are getting more performance._
+
+
+
+
 
