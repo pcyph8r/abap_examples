@@ -1,0 +1,95 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+
+@EndUserText.label: 'Annotations in CDS '
+
+@Metadata.ignorePropagatedAnnotations: true
+
+@ObjectModel.usageType:{
+
+   serviceQuality: #X,
+
+   sizeCategory: #S,
+
+   dataClass: #MIXED
+
+}
+
+define view entity ZPK_SAMPLE08
+
+   with parameters p_cuky : abap.cuky
+
+as select from I_SalesDocument
+
+association [0..1] to I_SalesDocumentItem as _item
+
+on I_SalesDocument.SalesDocument = _item.SalesDocument
+
+//with default filter _item.NetAmount > 500
+
+{
+
+key I_SalesDocument.SalesDocument as so,
+
+   @EndUserText: {
+
+       label: 'Customer',
+
+       quickInfo: 'Customer Info'
+
+   }
+
+   I_SalesDocument.SoldToParty,  
+
+   I_SalesDocument.TransactionCurrency as Currency,
+
+   @Semantics.amount.currencyCode: 'Currency'
+
+   I_SalesDocument.TotalNetAmount,
+
+   @Semantics.amount.currencyCode : 'Currency'
+
+   currency_conversion(amount=> I_SalesDocument.TotalNetAmount,
+
+                       source_currency => I_SalesDocument.TransactionCurrency,
+
+//                        target_currency => cast( 'INR' as abap.cuky),
+
+                       target_currency => $parameters.p_cuky,
+
+                       exchange_rate_date => $session.system_date)
+
+                       as converted_currency,
+
+     $parameters.p_cuky as converted_rs,                                    
+
+//    cast( 'INR' as abap.cuky) as converted_rs,                                      
+
+   _item.SalesDocumentItem,
+
+   _item.Material,
+
+   _item.OrderQuantityUnit,
+
+   @Semantics.quantity.unitOfMeasure : 'OrderQuantityUnit'
+
+   _item.OrderQuantity,
+
+   @Semantics.quantity.unitOfMeasure : 'converted_unit'
+
+   unit_conversion(quantity => _item.OrderQuantity,
+
+                   source_unit => _item.OrderQuantityUnit,
+
+                   target_unit => cast( 'G' as abap.unit(3)))
+
+                    as converted_qty,
+
+   cast( 'G' as abap.unit(3)) as converted_unit,                    
+
+   _item
+
+}
+
+where _item.OrderQuantityUnit = 'KG'
