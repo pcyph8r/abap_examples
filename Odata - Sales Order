@@ -1,0 +1,195 @@
+CLASS zcl_zpksalesorder_001_dpc_ext DEFINITION
+
+ PUBLIC
+
+ INHERITING FROM zcl_zpksalesorder_001_dpc
+
+ CREATE PUBLIC .
+
+ PUBLIC SECTION.
+
+* in public because implementing from interface. / inheritance.
+
+    methods : /iwbep/if_mgw_appl_srv_runtime~create_deep_entity REDEFINITION.
+
+*    METHODS : /iwbep/if_mgw_appl_srv_runtime~get_expanded_entityset REDEFINITION.
+
+*    methods : /iwbep/if_mgw_appl_srv_runtime~get_expanded_entity REDEFINITION.
+
+ PROTECTED SECTION.
+
+   METHODS : salesorderheader_get_entityset REDEFINITION.
+
+   METHODS : salesorderheader_get_entity REDEFINITION.
+
+   METHODS : salesorderitems_get_entityset REDEFINITION.
+
+ PRIVATE SECTION.
+
+     methods : create_sales_order
+
+                      importing is_salesorder type zcl_zpksalesorder_001_mpc_ext=>ty_deep_so.
+
+ENDCLASS.
+
+CLASS zcl_zpksalesorder_001_dpc_ext IMPLEMENTATION.
+
+ METHOD salesorderheader_get_entityset.
+
+   SELECT vbeln, vbtyp, auart, netwr, waerk, vkorg, bstnk, kunnr FROM vbak
+
+   INTO CORRESPONDING FIELDS OF TABLE  @et_entityset
+
+     UP TO 100 ROWS.
+
+      IF    sy-subrc <> 0.
+
+*    this URI is not supported using buisness exception.
+
+       RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+
+         EXPORTING
+
+           textid  = /iwbep/cx_mgw_busi_exception=>business_error
+
+           message = 'No Sales Document is Present.'.
+
+     ENDIF.
+
+ ENDMETHOD.
+
+ METHOD salesorderheader_get_entity.
+
+   DATA lv_vbeln TYPE vbak-vbeln.
+
+   lv_vbeln = it_key_tab[ name = 'Vbeln' ]-value.
+
+   lv_vbeln = |{ lv_vbeln ALPHA = IN }|.
+
+   SELECT SINGLE vbeln,
+
+          vbtyp,
+
+          auart,
+
+          netwr,
+
+          waerk,
+
+          vkorg,
+
+          bstnk,
+
+          kunnr
+
+    FROM vbak  INTO CORRESPONDING FIELDS OF @er_entity where vbeln = @lv_vbeln.
+
+   IF sy-subrc IS not INITIAL.
+
+*    this URI is not supported using buisness exception.
+
+       data : lv_message type bapi_msg.
+
+       concatenate 'SalesDocument is not present with key : ' lv_vbeln into lv_message.
+
+       RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+
+         EXPORTING
+
+           textid  = /iwbep/cx_mgw_busi_exception=>business_error
+
+           message = lv_message.
+
+     ENDIF.
+
+ ENDMETHOD.
+
+ METHOD salesorderitems_get_entityset.
+
+   DATA lv_vbeln TYPE vbeln.
+
+   IF iv_source_name = 'SalesOrderHeader'.
+
+     lv_vbeln = it_key_tab[ name = 'Vbeln' ]-value.
+
+   lv_vbeln = |{ lv_vbeln ALPHA = IN }|.
+
+     SELECT vbeln,
+
+        posnr,
+
+        matnr,
+
+        kwmeng
+
+     FROM vbap INTO CORRESPONDING FIELDS OF TABLE @et_entityset
+
+     WHERE vbeln = @lv_vbeln.
+
+     IF    sy-subrc <> 0.
+
+*    this URI is not supported using buisness exception.
+
+       RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+
+         EXPORTING
+
+           textid  = /iwbep/cx_mgw_busi_exception=>business_error
+
+           message = 'No items found for the specified document.'.
+
+     ENDIF.
+
+   ELSE.
+
+     SELECT vbeln,
+
+      posnr,
+
+      matnr,
+
+      kwmeng
+
+      FROM vbap INTO CORRESPONDING FIELDS OF TABLE @et_entityset UP TO 100 ROWS.
+
+     IF    sy-subrc <> 0.
+
+*    this URI is not supported using buisness exception.
+
+       RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+
+         EXPORTING
+
+           textid  = /iwbep/cx_mgw_busi_exception=>business_error
+
+           message = 'No Items data present in table.'.
+
+     ENDIF.
+
+   ENDIF.
+
+ ENDMETHOD.
+
+ METHOD /iwbep/if_mgw_appl_srv_runtime~create_deep_entity.
+
+ data : ls_sales_order type zcl_zpksalesorder_001_mpc_ext=>ty_deep_so.
+
+       io_data_provider->read_entry_data(
+
+         IMPORTING
+
+           es_data = ls_sales_order
+
+       ).
+
+*        CATCH /iwbep/cx_mgw_tech_exception.
+
+ ENDMETHOD.
+
+ METHOD create_sales_order.
+
+*Heere we add code for bapi and creation of code.*
+
+ ENDMETHOD.
+
+ENDCLASS.
