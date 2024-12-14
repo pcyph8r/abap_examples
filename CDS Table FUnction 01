@@ -1,0 +1,159 @@
+@EndUserText.label: 'Table Function Example'
+
+@ClientHandling.type:#CLIENT_DEPENDENT
+
+define table function ZPK_CDSTF01
+
+ with parameters
+
+   @Environment.systemField : #CLIENT
+
+   client : abap.clnt
+
+returns
+
+{
+
+ client : abap.clnt;
+
+ SalesDocument  : abap.char(10);
+
+}
+
+implemented by method
+
+ ZCL_CDSTF=>get_so_header;
+
+
+
+CLASS zcl_cdstf DEFINITION
+
+ PUBLIC
+
+ FINAL
+
+ CREATE PUBLIC .
+
+ PUBLIC SECTION.
+
+ INTERFACES if_amdp_marker_hdb.
+
+   CLASS-METHODS : get_so_header
+
+       FOR TABLE FUNCTION ZPK_CDSTF01.
+
+ PROTECTED SECTION.
+
+ PRIVATE SECTION.
+
+ENDCLASS.
+
+CLASS zcl_cdstf IMPLEMENTATION.
+
+    METHOD get_so_header BY DATABASE FUNCTION
+
+                      FOR HDB
+
+                      LANGUAGE SQLSCRIPT
+
+                      OPTIONS READ-ONLY
+
+                      USING vbak.
+
+   it_vbak = select mandt as client,
+
+               vbeln as SalesDocument from vbak
+
+               where mandt = :client  ;
+
+   RETURN :it_vbak;
+
+ ENDMETHOD.
+
+ENDCLASS.
+
+*&---------------------------------------------------------------------*
+
+*& Report zpk_cdstf01
+
+*&---------------------------------------------------------------------*
+
+*&
+
+*&---------------------------------------------------------------------*
+
+REPORT zpk_cdstf01.
+
+CLASS demo DEFINITION.
+
+ PUBLIC SECTION.
+
+   CLASS-METHODS main.
+
+ENDCLASS.
+
+CLASS demo IMPLEMENTATION.
+
+ METHOD main.
+
+* Method 1 : to get for utilising the db features class.
+
+*  data(lv_support) = cl_abap_dbfeatures=>use_features(
+
+*    EXPORTING
+
+**      connection         =
+
+*      requested_features = VALUE #( ( cl_abap_dbfeatures=>amdp_table_function ) )
+
+**    RECEIVING
+
+**      supports_features  = data(lv_support)
+
+*).
+
+**  CATCH cx_abap_invalid_param_value.
+
+*    if  lv_support = 'X'.
+
+*
+
+*    endif.
+
+* Method 2 : in if statement directly
+
+   IF ( cl_abap_dbfeatures=>use_features(
+
+           EXPORTING
+
+          requested_features = VALUE #( ( cl_abap_dbfeatures=>amdp_table_function ) )
+
+        )  ).
+
+     SELECT * FROM zpk_cdstf01
+
+     using CLIENT '100'
+
+     INTO TABLE @DATA(it_result).
+
+     IF sy-subrc IS INITIAL.
+
+       data(lv_counter) = lines( it_result ).
+
+       cl_demo_output=>Write( lv_counter ).
+
+       cl_demo_output=>display( it_result ).
+
+     ENDIF.
+
+   ELSE.
+
+   ENDIF.
+
+ ENDMETHOD.
+
+ENDCLASS.
+
+START-OF-SELECTION.
+
+ demo=>main(  ).
