@@ -1,0 +1,209 @@
+CLASS zcl_zpkemployee_001_dpc_ext DEFINITION
+
+ PUBLIC
+
+ INHERITING FROM zcl_zpkemployee_001_dpc
+
+ CREATE PUBLIC .
+
+ PUBLIC SECTION.
+
+ methods : /iwbep/if_mgw_core_srv_runtime~changeset_begin REDEFINITION.
+
+ methods : /iwbep/if_mgw_core_srv_runtime~changeset_end REDEFINITION.
+
+ PROTECTED SECTION.
+
+   METHODS : employeeset_get_entityset REDEFINITION.
+
+   METHODS : employeeset_get_entity REDEFINITION.
+
+   METHODS : employeeset_create_entity REDEFINITION.
+
+   METHODS : employeeset_update_entity REDEFINITION.
+
+   METHODS : employeeset_delete_entity REDEFINITION.
+
+ PRIVATE SECTION.
+
+ENDCLASS.
+
+CLASS zcl_zpkemployee_001_dpc_ext IMPLEMENTATION.
+
+ METHOD employeeset_get_entityset.
+
+   SELECT * FROM zpk_employee INTO TABLE @et_entityset.
+
+   IF sy-subrc IS INITIAL .
+
+   ENDIF.
+
+ ENDMETHOD.
+
+ METHOD employeeset_create_entity.
+
+   DATA : ls_employee TYPE zpk_employee.
+
+   io_data_provider->read_entry_data(
+
+        IMPORTING
+
+          es_data = ls_employee
+
+      ).
+
+   ls_employee-mandt = sy-mandt.
+
+   INSERT ZPK_employee FROM ls_employee.
+
+   er_entity = ls_employee.
+
+ ENDMETHOD.
+
+ METHOD employeeset_get_entity.
+
+   DATA lv_empid TYPE zpk_employee-employeeid.
+
+   lv_empid = it_key_tab[ name = 'EmployeeId' ]-value.
+
+   lv_empid = |{ lv_empid ALPHA = IN }|.
+
+   SELECT SINGLE employeeid,
+
+          name,
+
+          city,
+
+          companyname,
+
+          department,
+
+          startdata,
+
+         enddate,
+
+          salary,
+
+          currency
+
+    FROM zpk_employee  INTO CORRESPONDING FIELDS OF @er_entity WHERE employeeid = @lv_empid.
+
+   IF sy-subrc IS NOT INITIAL.
+
+*    this URI is not supported using buisness exception.
+
+     DATA : lv_message TYPE bapi_msg.
+
+     CONCATENATE 'Employee is not present with id : ' lv_empid INTO lv_message.
+
+     RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+
+       EXPORTING
+
+         textid  = /iwbep/cx_mgw_busi_exception=>business_error
+
+         message = lv_message.
+
+   ENDIF.
+
+ ENDMETHOD.
+
+ METHOD employeeset_delete_entity.
+
+   DATA lv_empid TYPE zpk_employee-employeeid.
+
+   DATA : lv_empidt TYPE zpk_employee-employeeid.
+
+   lv_empid = it_key_tab[ name = 'EmployeeId' ]-value.
+
+   lv_empid = |{ lv_empid ALPHA = IN }|.
+
+   SELECT SINGLE employeeid
+
+   FROM zpk_employee
+
+   INTO lv_empidt
+
+   WHERE employeeid = lv_empid.
+
+   IF  sy-subrc IS NOT INITIAL.
+
+     DATA : lv_message TYPE bapi_msg.
+
+     CONCATENATE 'Employee is not present with id : ' lv_empid INTO lv_message.
+
+     RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+
+       EXPORTING
+
+         textid  = /iwbep/cx_mgw_busi_exception=>business_error
+
+         message = lv_message.
+
+   ELSE.
+
+     DELETE FROM zpk_employee WHERE employeeid = lv_empid.
+
+   ENDIF.
+
+ ENDMETHOD.
+
+ METHOD employeeset_update_entity.
+
+   DATA lv_empid TYPE zpk_employee-employeeid.
+
+   DATA : lv_empidt    TYPE zpk_employee-employeeid.
+
+   DATA : ls_employee TYPE zpk_employee.
+
+   lv_empid = it_key_tab[ name = 'EmployeeId' ]-value.
+
+   lv_empid = |{ lv_empid ALPHA = IN }|.
+
+   SELECT SINGLE employeeid
+
+   FROM zpk_employee
+
+   INTO lv_empidt WHERE employeeid = lv_empid.
+
+   IF sy-subrc IS NOT INITIAL.
+
+     DATA : lv_message TYPE bapi_msg.
+
+     CONCATENATE 'Employee is not present with id : ' lv_empid INTO lv_message.
+
+     RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+
+       EXPORTING
+
+         textid  = /iwbep/cx_mgw_busi_exception=>business_error
+
+         message = lv_message.
+
+   ELSE.
+
+     io_data_provider->read_entry_data(
+
+          IMPORTING
+
+            es_data = ls_employee
+
+        ).
+
+   ENDIF.
+
+   ls_employee-mandt = sy-mandt.
+
+   MODIFY zpk_employee FROM ls_employee.
+
+ ENDMETHOD.
+
+ METHOD /iwbep/if_mgw_core_srv_runtime~changeset_begin.
+
+ ENDMETHOD.
+
+ METHOD /iwbep/if_mgw_core_srv_runtime~changeset_end.
+
+ ENDMETHOD.
+
+ENDCLASS.
