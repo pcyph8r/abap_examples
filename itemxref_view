@@ -1,0 +1,24 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #MANDATORY
+@EndUserText.label: 'Item cross reference.'
+@Metadata.ignorePropagatedAnnotations: true
+@ObjectModel.usageType:{
+   serviceQuality: #X,
+   sizeCategory: #S,
+   dataClass: #MIXED
+}
+define view entity ZITEMXREF
+ as select from I_ExchangeRateRawData
+ {
+key ExchangeRateType,
+key SourceCurrency,
+key TargetCurrency,
+key ValidityStartDate,
+ExchangeRate,
+NumberOfSourceCurrencyUnits,
+NumberOfTargetCurrencyUnits,
+/* Associations */
+_ExchangeRateType,
+_SourceCurrency,
+_TargetCurrency
+ }
