@@ -1,0 +1,71 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+
+@AccessControl.authorizationCheck: #CHECK
+
+@EndUserText.label: 'Filter Conditions'
+
+@Metadata.ignorePropagatedAnnotations: true
+
+@ObjectModel.usageType:{
+
+   serviceQuality: #X,
+
+   sizeCategory: #S,
+
+   dataClass: #MIXED
+
+}
+
+define view entity ZPK_SAMPLE04
+
+ as select from ZPK_SAMPLE03._item as _item
+
+ association [*] to makt as _matdesc on  _item.Material = _matdesc.matnr
+
+ association [*] to vbfa as _docflow on  _item.Material          = _docflow.vbelv
+
+                                     and _item.SalesDocumentItem = _docflow.posnv
+
+                                     and _docflow.vbtyp_n       = 'M'
+
+                                     and _docflow.vbtyp_v       = 'C'
+
+{
+
+ SalesDocument,
+
+ SalesDocumentItem,
+
+ SoldToParty,
+
+ Material,
+
+ _matdesc[spras ='E'].maktx,
+
+ _docflow[inner].vbeln as invoce
+
+}
+
+where
+
+SalesDocument = '0000001866'
+
+//define view entity ZPK_SAMPLE04
+
+//  as select from vbak
+
+//  association [1..*] to vbap as _item on vbak.vbeln = _item.vbeln
+
+//{
+
+//  key vbeln as so,
+
+//      kunnr as cust,
+
+//      vkorg,
+
+//      _item
+
+//}
+
+//
