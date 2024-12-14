@@ -1,0 +1,93 @@
+*&---------------------------------------------------------------------*
+
+*& Report zok_opensql_syntax
+
+*&---------------------------------------------------------------------*
+
+*&
+
+*&---------------------------------------------------------------------*
+
+REPORT zok_opensql_syntax.
+
+types : begin of ty_customer,
+
+       kunnr type kunnr,
+
+       name1 type name1,
+
+      end of TY_CUSTOMER.
+
+data  lt_customer type standard table of ty_customer.
+
+*Earlier field list could be written without space seperated, if we want to
+
+*perform any operations, we can't as compiler wont understand.
+
+*Select kunnr name1 from kna1 into table @lt_customer up to 10 rows.
+
+*Now the fields are to be ',' seperated.
+
+*Now we can write the field list after from as well,
+
+*this will help in getting fields from the table we are fetching data.
+
+   Select
+
+   from kna1
+
+   fields kunnr, name1
+
+   into table @lt_customer
+
+   up to 10 rows.
+
+*we can write into clause after where as well.
+
+*@ means this variable is to be hosted in application layer , not in db.
+
+*We need to host all the variables that are being used in application layer,except literals.
+
+*Literals :
+
+data : lv_matnr type matnr.
+
+SELECTION-SCREEN begin of block b1 WITH FRAME title text-003.
+
+   SELECT-options : s_matnr for lv_matnr.
+
+SELECTION-SCREEN end of block b1.
+
+data : lr_matnr type RANGE OF matnr,
+
+      lt_matnr2 type range of matnr,
+
+      ls_matnr like line of lr_matnr.
+
+       ls_matnr-sign = 'I'.
+
+       ls_matnr-option = 'CP'.
+
+       ls_matnr-low = 'SG'.
+
+       Append ls_matnr to lr_matnr.
+
+       Select 'I' as sign,
+
+               'EQ' as option,
+
+               matnr as low,
+
+               ' ' as high from mara into table @lt_matnr2
+
+       where ( matnr in @s_matnr and matnr in @lr_matnr ).
+
+       if sy-subrc is INITIAL.
+
+           cl_demo_output=>display( lt_matnr2 ).
+
+       endif.
+
+       select * from vbap into table @data(lt_tab)
+
+       where matnr in @lt_matnr2.
